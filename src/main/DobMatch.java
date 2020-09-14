@@ -11,26 +11,32 @@ import java.util.Date;
 import java.util.Scanner;
 
 public class DobMatch {
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) {
         boolean flag=false;
+        ArrayList<ArrayList<String>> data = new ArrayList<>();
+        String template;
+        Scanner scan;
+
         System.out.println("Opening file..");
-        File file =new File("emp_det.txt");
-        Scanner scan=new Scanner(file);
+        try {
+            File file = new File("src\\resources\\emp_det.txt");
+            scan = new Scanner(file);
+            System.out.println("Reading File..");
 
-        System.out.println("Reading File..");
 
-        ArrayList<ArrayList<String>> data= new ArrayList<>();
+            while (scan.hasNextLine()) {
+                data.add(new ArrayList<>(
+                        Arrays.asList(scan.nextLine().replaceAll("\\s+$", "").split(","))
+                ));
+            }
 
-        while (scan.hasNextLine()){
-           data.add(new ArrayList<>(
-                   Arrays.asList(scan.nextLine().replaceAll("\\s+$", "").split(","))
-           ));
-        }
         SimpleDateFormat formatter=new SimpleDateFormat("d-MMM");
         Date date=new Date();
         String cDate=formatter.format(date).toLowerCase();
         System.out.println("Today is "+cDate);
 
+        ReadTemplate templateFile=new ReadTemplate("src\\resources\\template\\template.html");
+        template=templateFile.getTemplate();
 
         SendingEmailApp sendHBMail=new SendingEmailApp();
 
@@ -41,7 +47,10 @@ public class DobMatch {
                     System.out.println(arr.get(0) + "’s Birthday is today");
                     System.out.println("Sending Happy birthday mail to "+arr.get(1));
                     sendHBMail.sendMail(arr.get(1).trim(),
-                            "Happy Birthday","Many many happy return of the day !");
+                            "Wishing you a very Happy Birthday!",
+                            "",
+                            template,
+                            "text/html");
 
                 }
                 else{
@@ -54,6 +63,9 @@ public class DobMatch {
 
         System.out.println("closing file..");
         scan.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         if(!flag)
         System.out.println("No Mail sent");
 
