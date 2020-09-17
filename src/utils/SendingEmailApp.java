@@ -42,17 +42,9 @@ public class SendingEmailApp {
                          String body,
                          String content,
                          String contentType){
-        System.out.println("Sending Mail..");
         try{
 
-            Session session= Session.getDefaultInstance(props,new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(sender,
-                            sPassword);
-
-                }
-            });
+            Session session= Session.getDefaultInstance(props,null);
            // session.setDebug(true);
 
             MimeMessage message=new MimeMessage(session);
@@ -65,13 +57,22 @@ public class SendingEmailApp {
 
             message.saveChanges();
 
-            Transport.send(message);
-
-            System.out.println("**************************");
-            System.out.println("* Mail sent successfully *");
-            System.out.println("**************************");
-
-        } catch (MessagingException e) {
+            Transport transport = session.getTransport("smtp");
+            if(transport!=null) {
+                transport.connect(emailSMTPServer, sender, sPassword);
+                transport.sendMessage(message, message.getAllRecipients());
+                transport.close();
+                System.out.println("* Mail sent successfully *");
+            }
+            else{
+                System.out.println("Connection Failed");
+            }
+        }catch(AuthenticationFailedException e) {
+            System.out.println("AuthenticationFailedException - for authentication failures");
+            e.printStackTrace();
+        }
+        catch (MessagingException e) {
+            System.out.println("for other failures");
             e.printStackTrace();
         }
 
