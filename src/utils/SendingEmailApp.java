@@ -37,7 +37,8 @@ public class SendingEmailApp {
     }
 
 
-    public void sendMail(String receiver,
+    public void sendMail(String receiverTo,
+                         String receiverCC,
                          String subject,
                          String body,
                          String content,
@@ -52,8 +53,10 @@ public class SendingEmailApp {
             message.setSubject(subject);
             message.setFrom(new InternetAddress(sender));
             message.setContent(content,contentType);
-            message.addRecipient(Message.RecipientType.TO,
-                    new InternetAddress(receiver.toLowerCase()));
+            message.setRecipients(Message.RecipientType.TO,
+                    InternetAddress.parse(receiverTo));
+            message.setRecipients(Message.RecipientType.CC,
+                    InternetAddress.parse(receiverCC));
 
             message.saveChanges();
 
